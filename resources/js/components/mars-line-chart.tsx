@@ -1,7 +1,8 @@
-import { useId, useState } from 'react';
+import { useId, useState, useEffect, useRef } from 'react';
 import * as d3 from 'd3';
+import { asset } from '@/lib/utils'
 
-const MarsLineChart = ({ 
+export default function MarsLineChart({
     className,
     width,
     height,
@@ -9,12 +10,25 @@ const MarsLineChart = ({
     marginRight,
     marginBottom,
     marginLeft,
-    data
-}) => {
+    route
+}) { 
+  const [data, setData] = useState([]);
+    useEffect(() => {
+        let dataL = d3.json(asset(route));
+        let parseTime = d3.timeParse("%m/%d/%Y");
+        Object.entries(dataL).map((d, index) => {
+            index === 0 && console.log(d.close);
+            d.date = parseTime(d.date);
+            d.close = parseFloat(d.close);
+            setData(data.push(d));
+        });
+    }, [route]);
+
     const patternId = useId();
+    console.log(data)
     
     // Declare the x (horizontal position) scale.
-    const x = d3.scaleUtc(d3.extent(data, d => d.date), [marginLeft, width - marginRight]);
+    const x = d3.scaleUtc(d3.extent(data, (d) => d.date), [marginLeft, width - marginRight]);
 
     // Declare the y (vertical position) scale.
     const y = d3.scaleLinear([0, d3.max(data, d => d.close)], [height - marginBottom, marginTop]);
@@ -25,7 +39,7 @@ const MarsLineChart = ({
         .y(d => y(d.close));
 
     // Create the SVG container.
-    const svg = d3.create("svg")
+    let svg = d3.create("svg")
         .attr("width", width)
         .attr("height", height)
         .attr("viewBox", [0, 0, width, height])
@@ -58,7 +72,16 @@ const MarsLineChart = ({
         .attr("stroke-width", 1.5)
         .attr("d", line(data));
 
-    return svg;
+    let svgRef = useRef(null);
+    useEffect(()=>{
+        if(svgRef.current){
+            svgRef.current.replaceWith(svg.node())
+        } 
+    }, []);
+
+    return (
+        <svg ref={svgRef} >
+        </svg>
+    );
 };
 
-export default MarsLineChart;

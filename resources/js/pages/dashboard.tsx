@@ -3,19 +3,6 @@ import { PlaceholderPattern } from '@/components/ui/placeholder-pattern';
 import { dashboard } from '@/routes';
 import MarsBarChart from '@/components/mars-bar-chart';
 import MarsLineChart from '@/components/mars-line-chart';
-import * as d3 from 'd3';
-    const createTables = async () => {
-        let data = await             
-        d3.csv(url('static/linechart.json'))
-        let parseTime = d3.timeParse("%Y-%m-%d");
-        data.forEach((d) => {
-            d.date = parseTime(d.date);
-            d.close = +d.close;
-        });
-    }
-console.log("LINE DATA");
-const lineDataTables = createTables();
-console.log(lineDataTables);
 
 const data = [
   { name: 'A', value: 30 },
@@ -43,9 +30,13 @@ export default function Dashboard() {
                     </div>
                     <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                         <MarsLineChart
-                            data={lineDataTables}
+                            route={'static/linechart.json'}
                             width={400}
                             height={220}
+                            marginTop={14}
+                            marginRight={10}
+                            marginLeft={10}
+                            marginBottom={14}
                             className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" 
                             />
                     </div>
