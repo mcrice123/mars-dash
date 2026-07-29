@@ -13,19 +13,26 @@ export default function MarsLineChart({
     route
 }) { 
   const [data, setData] = useState([]);
-    useEffect(() => {
-        let dataL = d3.json(asset(route));
-        let parseTime = d3.timeParse("%m/%d/%Y");
-        Object.entries(dataL).map((d, index) => {
-            index === 0 && console.log(d.close);
-            d.date = parseTime(d.date);
-            d.close = parseFloat(d.close);
-            setData(data.push(d));
+
+  const getData = () => {
+    d3.json(asset(route))
+      .then(response => {
+        let arr = [];
+        const parseTime = d3.utcParse("%Y-%m-%dT%H:%M:%S.%LZ");
+        Object.entries(response).map((d, index) => {
+            index == 0 && console.log(d[1].date)
+            arr.push({ date: parseTime(d[1].date), close: parseFloat(d[1].close) });
         });
-    }, [route]);
+        return arr;
+      })
+      .then(json => setData(json));
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
 
     const patternId = useId();
-    console.log(data)
     
     // Declare the x (horizontal position) scale.
     const x = d3.scaleUtc(d3.extent(data, (d) => d.date), [marginLeft, width - marginRight]);
