@@ -35,8 +35,8 @@ export default function Dashboard() {
                             height={220}
                             marginTop={14}
                             marginRight={10}
-                            marginLeft={10}
-                            marginBottom={14}
+                            marginLeft={40}
+                            marginBottom={18}
                             className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" 
                             />
                     </div>

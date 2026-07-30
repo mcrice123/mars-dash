@@ -18,16 +18,19 @@ export default function MarsLineChart({
     d3.json(asset(route))
       .then(response => {
         let arr = [];
-        const parseTime = d3.utcParse("%Y-%m-%dT%H:%M:%S.%LZ");
+        const parseTime = d3.timeParse("%Y-%m-%dT%H:%M:%S.%LZ");
         Object.entries(response).map((d, index) => {
             index == 0 && console.log(d[1].date)
-            arr.push({ date: parseTime(d[1].date), close: parseFloat(d[1].close) });
+            d[1].date = parseTime(d[1].date);
+            d[1].close = +parseFloat(d[1].close);
+            arr.push(d[1]);
         });
         return arr;
       })
       .then(json => setData(json));
   };
 
+  // Gets and sets data in state
   useEffect(() => {
     getData();
   }, []);
@@ -35,7 +38,7 @@ export default function MarsLineChart({
     const patternId = useId();
     
     // Declare the x (horizontal position) scale.
-    const x = d3.scaleUtc(d3.extent(data, (d) => d.date), [marginLeft, width - marginRight]);
+    const x = d3.scaleTime(d3.extent(data, (d) => d.date), [marginLeft, width - marginRight]);
 
     // Declare the y (vertical position) scale.
     const y = d3.scaleLinear([0, d3.max(data, d => d.close)], [height - marginBottom, marginTop]);
@@ -45,6 +48,8 @@ export default function MarsLineChart({
         .x(d => x(d.date))
         .y(d => y(d.close));
 
+        console.log(line(data));
+
     // Create the SVG container.
     let svg = d3.create("svg")
         .attr("width", width)
@@ -52,42 +57,19 @@ export default function MarsLineChart({
         .attr("viewBox", [0, 0, width, height])
         .attr("style", "max-width: 100%; height: auto; height: intrinsic;");
 
-    // Add the x-axis.
-    svg.append("g")
-        .attr("transform", `translate(0,${height - marginBottom})`)
-        .call(d3.axisBottom(x).ticks(width / 80).tickSizeOuter(0));
+    // set refs
+    const gx = useRef(null);
+    const gy = useRef(null);
 
-    // Add the y-axis, remove the domain line, add grid lines and a label.
-    svg.append("g")
-        .attr("transform", `translate(${marginLeft},0)`)
-        .call(d3.axisLeft(y).ticks(height / 40))
-        .call(g => g.select(".domain").remove())
-        .call(g => g.selectAll(".tick line").clone()
-            .attr("x2", width - marginLeft - marginRight)
-            .attr("stroke-opacity", 0.1))
-        .call(g => g.append("text")
-            .attr("x", -marginLeft)
-            .attr("y", 10)
-            .attr("fill", "currentColor")
-            .attr("text-anchor", "start")
-            .text("↑ Daily close ($)"));
-
-    // Append a path for the line.
-    svg.append("path")
-        .attr("fill", "none")
-        .attr("stroke", "steelblue")
-        .attr("stroke-width", 1.5)
-        .attr("d", line(data));
-
-    let svgRef = useRef(null);
-    useEffect(()=>{
-        if(svgRef.current){
-            svgRef.current.replaceWith(svg.node())
-        } 
-    }, []);
+    // Update chart when data is available
+    useEffect(() => void d3.select(gx.current).call(d3.axisBottom(x)), [gx, x]);
+    useEffect(() => void d3.select(gy.current).call(d3.axisLeft(y)), [gy, y]);
 
     return (
-        <svg ref={svgRef} >
+        <svg width={width} height={height}>
+            <g ref={gx} transform={`translate(0,${height - marginBottom})`}></g>
+            <g ref={gy} transform={`translate(${marginLeft},0)`}></g>
+            <path fill="none" stroke="steelblue" strokeWidth="1.5" d={line(data)} />
         </svg>
     );
 };
