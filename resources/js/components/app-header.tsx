@@ -138,6 +138,7 @@ export function AppHeader({ breadcrumbs = [] }: Props) {
                         href={dashboard()}
                         prefetch
                         className="flex items-center space-x-2"
+                        aria-label="mars dash"
                     >
                         <AppLogo />
                     </Link>
