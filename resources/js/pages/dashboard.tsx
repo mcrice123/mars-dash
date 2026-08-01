@@ -21,15 +21,29 @@ export default function Dashboard() {
             <div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
                 <div className="grid auto-rows-min gap-4 md:grid-cols-3">
                     <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
-                        <MarsBarChart 
-                            data={data} 
-                            width={400} 
-                            height={220} 
+                        <MarsLineChart
+                            xKey={"GHz"}
+                            yKey={"dB"}
+                            xType={"float"}
+                            yType={"float"}
+                            route={'static/spectrum1.json'}
+                            width={400}
+                            height={220}
+                            marginTop={14}
+                            marginRight={10}
+                            marginLeft={40}
+                            marginBottom={18}
+                            ceiling={-50}
+                            floor={-120}
                             className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" 
                             />
                     </div>
                     <div className="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border">
                         <MarsLineChart
+                            xKey={"date"}
+                            yKey={"close"}
+                            xType={"date"}
+                            yType={"float"}
                             route={'static/linechart.json'}
                             width={400}
                             height={220}
@@ -37,6 +51,7 @@ export default function Dashboard() {
                             marginRight={10}
                             marginLeft={40}
                             marginBottom={18}
+                            floor={0}
                             className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" 
                             />
                     </div>

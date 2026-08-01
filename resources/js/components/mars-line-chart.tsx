@@ -3,16 +3,23 @@ import * as d3 from 'd3';
 import { asset } from '@/lib/utils'
 
 export default function MarsLineChart({
+    xKey,               // key used to access values for x-axis
+    yKey,               // key used to access values for y-axis
+    xType,              // type of values for x-axis
+    yType,              // type of values for y-axis
     className,
-    width,
-    height,
-    marginTop,
-    marginRight,
-    marginBottom,
-    marginLeft,
-    route
+    width,              // width of the chart
+    height,             // height of the chart
+    marginTop,          // spacing above the chart
+    marginRight,        // spacing to the right of the chart
+    marginBottom,       // spacing below the chart
+    marginLeft,         // spacing to the left of the chart
+    ceiling,            // max on y-axis
+    floor,              // min on y-axis
+    route               // file path to data file
 }) { 
   const [data, setData] = useState([]);
+  console.log(xType, yType)
 
   const getData = () => {
     d3.json(asset(route))
@@ -20,35 +27,46 @@ export default function MarsLineChart({
         let arr = [];
         const parseTime = d3.timeParse("%Y-%m-%dT%H:%M:%S.%LZ");
         Object.entries(response).map((d, index) => {
-            index == 0 && console.log(d[1].date)
-            d[1].date = parseTime(d[1].date);
-            d[1].close = +parseFloat(d[1].close);
-            arr.push(d[1]);
+            let obj = {
+                [xKey]: xType === "date" ? parseTime(d[1][xKey]) : +parseFloat(d[1][xKey]),
+                [yKey]: yType === "date" ? parseTime(d[1][yKey]) : +parseFloat(d[1][yKey])
+            };
+            arr.push(obj);
         });
         return arr;
       })
       .then(json => setData(json));
-  };
+    };
 
-  // Gets and sets data in state
-  useEffect(() => {
-    getData();
-  }, []);
-
-    const patternId = useId();
+    // Gets and sets data in state
+    useEffect(() => {
+        getData();
+    }, []);
+    
+    
+    let yMax = d3.max(data, (d) => d[yKey]);
+    let yMin = d3.min(data, (d) => d[yKey]);
+    yMax = d3.max([yMax, ceiling]);
+    yMin = d3.min([yMin, floor]);
+    const yExtent = d3.extent([yMin, yMax]);
+    const xExtent = d3.extent(data, (d) => d[xKey]);
     
     // Declare the x (horizontal position) scale.
-    const x = d3.scaleTime(d3.extent(data, (d) => d.date), [marginLeft, width - marginRight]);
+    const x = xType === "date"
+        ? d3.scaleTime(xExtent, [marginLeft, width - marginRight])
+        : d3.scaleLinear(xExtent, [marginLeft, width - marginRight]);
 
     // Declare the y (vertical position) scale.
-    const y = d3.scaleLinear([0, d3.max(data, d => d.close)], [height - marginBottom, marginTop]);
+    const y = yType === "date"
+        ? d3.scaleTime(yExtent, [height - marginBottom, marginTop])
+        : d3.scaleLinear(yExtent, [height - marginBottom, marginTop]);
 
     // Declare the line generator.
     const line = d3.line()
-        .x(d => x(d.date))
-        .y(d => y(d.close));
+        .x(d => x(d[xKey]))
+        .y(d => y(d[yKey]));
 
-        console.log(line(data));
+    console.log(line(data));
 
     // Create the SVG container.
     let svg = d3.create("svg")
