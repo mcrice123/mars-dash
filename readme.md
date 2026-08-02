@@ -1,4 +1,4 @@
-![mars dash logo](/mars-dash.png "mars dash logo")
+![mars dash logo](https://github.com/mcrice123/mars-dash/blob/main/public/mars-dash.png "mars dash logo")
 
 # mars dash
 
