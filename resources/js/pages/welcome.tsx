@@ -1,6 +1,7 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { dashboard, login } from '@/routes';
 import { register } from '@/routes';
+import MarsLineChart from '@/components/mars-line-chart';
 
 export default function Welcome() {
     const { auth } = usePage().props;
@@ -37,8 +38,26 @@ export default function Welcome() {
                     </nav>
                 </header>
                 <div className="flex w-full items-center justify-center opacity-100 transition-opacity duration-750 lg:grow starting:opacity-0">
-                    <main className="flex w-full max-w-[335px] flex-col-reverse lg:max-w-4xl lg:flex-row">
-                        <img src="/mars-dash.png" alt="mars dash" />
+                    <main className="flex w-full max-w-[335px] flex-col lg:max-w-4xl">
+                        <img src="/mars-dash.svg" alt="mars dash" className="size-full" />
+                        <div className="flex w-full flex-row">
+                            <MarsLineChart
+                                xKey={"GHz"}
+                                yKey={"dB"}
+                                xType={"float"}
+                                yType={"float"}
+                                route={'./js/json/spectrum1.json'}
+                                width={400}
+                                height={220}
+                                marginTop={14}
+                                marginRight={10}
+                                marginLeft={40}
+                                marginBottom={18}
+                                ceiling={-50}
+                                floor={-120}
+                                className="absolute inset-0 size-full stroke-neutral-900/20 dark:stroke-neutral-100/20" 
+                                />
+                        </div>
                     </main>
                 </div>
                 <div className="hidden h-14.5 lg:block"></div>
